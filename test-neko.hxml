@@ -1,0 +1,13 @@
+-D MYSQL_SUPPORT
+-D UPDATE_MIGRATIONS
+-D absolute-path
+-cp ../haxe-mw-extensions
+-cp ../tinkerbell/src
+-cp ../cross-db/src
+-cp ../haxe-continuation/src
+-cp ../monax/src
+-cp src
+
+-cp test-neko
+-neko Test.n
+-main Test
