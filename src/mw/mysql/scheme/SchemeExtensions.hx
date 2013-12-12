@@ -53,9 +53,17 @@ class SchemeExtensions {
   }
 
   static public function check(s: mw.mysql.scheme.Scheme) {
+    // duplicate table names
     var names = s.tables.map(function(x){ return x.name; }).duplicates();
     if (names.length > 0)
-      throw names;
+      throw 'duplicate table names ${names.join(",")}';
+
+    // duplicate field names
+    for (t in s.tables){
+      var names = t.fields.map(function(x){ return x.name; }).duplicates();
+      if (names.length > 0)
+        throw 'duplicate field names ${names.join(",")} of table ${t.name}';
+    }
   }
 
   public static function migrate_to_sql(from: mw.mysql.scheme.Scheme, to: mw.mysql.scheme.Scheme):Array<String> {

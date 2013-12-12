@@ -1,10 +1,16 @@
 import xx.ContinuationM;
+import sys.db.Types;
+
+#if !macro @:autoBuild(mw.relational.SPODBuilder.build("app.schemes.AppScheme.mysqlScheme(\"\")", "MySQL")) #end interface SPODBuilder {
+}
+
+class Teachers extends sys.db.Object implements SPODBuilder  {
+}
 
 class Test {
 
   static function main() {
     // simple diff test
-
 
     var s = app.schemes.AppScheme.mysqlScheme("");
 

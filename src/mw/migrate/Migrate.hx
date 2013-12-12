@@ -263,7 +263,7 @@ class Migrate {
     #end
 
     var r = migrateCont(e_ci, migrationFileDir, migrationPackage, version_table);
-    tink.macro.tools.Printer.print(r);
+    // tink.macro.tools.Printer.print(r);
     return r;
   }
 

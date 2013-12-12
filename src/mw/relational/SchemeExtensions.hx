@@ -66,24 +66,36 @@ class SchemeExtensions {
       var m_table = mw.relational.SchemeExtensions.tableByName(scheme, mToN.m).assert_nn('table ${mToN.m} not found, referenced by relation');
       var n_table = mw.relational.SchemeExtensions.tableByName(scheme, mToN.n).assert_nn('table ${mToN.n} not found, referenced by relation');
 
-      var m_names = m_table.primaryKeyFields;
-      var m_fields_ref = m_names.map_A(function(name){
-        var f = mw.relational.SchemeExtensions.fieldByName(m_table, name);
-        var r: mw.relational.LazyField = {name: name, type_: f.type_, references: {table: mToN.m, field: name} };
-        return r;
-      });
-      var n_names = n_table.primaryKeyFields;
-      var n_fields_ref = n_names.map_A(function(name){
-        var f = mw.relational.SchemeExtensions.fieldByName(n_table, name);
-        var r: mw.relational.LazyField = {name: name, type_: f.type_, references: {table: mToN.n, field: name} };
-        return r;
-      });
+      function fields(user_setting:Null<Array<String>>, primaries:Array<String>){
+        if (user_setting != null){
+          if (user_setting.length != primaries.length)
+            throw "name count missmatch";
+          return user_setting;
+        }
+        return primaries;
+      };
+
+
+      function fields(m_or_n:String, parent_table:String, names:Array<String>){
+        var pt = mw.relational.SchemeExtensions.tableByName(scheme, parent_table).assert_nn('${parent_table} unkown of mToN.${m_or_n} relation ${mToN.tableName}');
+        return pt.primaryKeyFields.map_Ai(function(pk, i){
+          var f = mw.relational.SchemeExtensions.fieldByName(pt, pk).assert_nn('${parent_table} does not have field ${pk} mToN.${m_or_n} relation ${mToN.tableName}');
+          var n = names == null ? pk : names[i];
+          var r: mw.relational.LazyField = {name: n, type_: f.type_, references: {table: parent_table, field: pk} };
+          return r;
+        });
+      };
+
+      var m_fields_ref = fields("m", mToN.m, mToN.m_fields);
+      var n_fields_ref = fields("n", mToN.n, mToN.n_fields);
+
+      var refs = m_fields_ref.concat(n_fields_ref);
 
       scheme.tables.push({
         name: tableName,
-        fields: m_fields_ref.concat(n_fields_ref),
+        fields: refs,
         comment: 'n to m relation ${mToN.m} - ${mToN.n}',
-        primaryKeyFields: mToN.unique.ifNull(true) ? n_names.concat(m_names) : [],
+        primaryKeyFields: mToN.unique.ifNull(true) ? refs.map_A(function(x) return x.name) : [],
       });
     }
 
